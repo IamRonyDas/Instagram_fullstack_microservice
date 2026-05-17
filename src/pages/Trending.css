@@ -1,0 +1,53 @@
+.trending-page {
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+  background: var(--bg-primary);
+}
+
+.trending-page__banner {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  padding: 0.75rem 1rem;
+  background: linear-gradient(135deg, rgba(255, 107, 53, 0.15), rgba(225, 48, 108, 0.1));
+  border-bottom: 1px solid var(--border);
+}
+
+.trending-page__fire {
+  font-size: 2rem;
+}
+
+.trending-page__heading {
+  margin: 0;
+  font-size: 1rem;
+  font-weight: 600;
+  color: var(--text-primary);
+}
+
+.trending-page__sub {
+  margin: 0.15rem 0 0;
+  font-size: 0.8rem;
+  color: var(--text-secondary);
+}
+
+.trending-page__feed {
+  flex: 1;
+}
+
+.trending-page__item {
+  position: relative;
+}
+
+.trending-page__badge {
+  padding: 0.5rem 1rem 0;
+  font-size: 0.8rem;
+  font-weight: 600;
+  color: #ff6b35;
+}
+
+.trending-page__empty {
+  padding: 3rem 1rem;
+  text-align: center;
+  color: var(--text-secondary);
+}

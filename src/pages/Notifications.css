@@ -1,0 +1,114 @@
+.notifications-page {
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+  background: var(--bg-primary);
+  padding-top: 24px;
+}
+
+.notifications-page__list {
+  flex: 1;
+}
+
+.notifications-page__section-label {
+  margin: 0;
+  padding: 0.85rem 1rem 0.35rem;
+  font-size: 0.95rem;
+  font-weight: 600;
+  color: var(--text-primary);
+}
+
+.notification-item {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  padding: 0.75rem 1rem;
+  background: var(--bg-primary);
+}
+
+.notification-item--new {
+  background: rgba(0, 149, 246, 0.08);
+}
+
+.notification-item__avatar-link {
+  flex-shrink: 0;
+  line-height: 0;
+}
+
+.notification-item__avatar {
+  width: 44px;
+  height: 44px;
+  border-radius: 50%;
+  object-fit: cover;
+}
+
+.notification-item__content {
+  flex: 1;
+  min-width: 0;
+}
+
+.notification-item__text {
+  margin: 0;
+  font-size: 0.85rem;
+  line-height: 1.35;
+  color: var(--text-primary);
+}
+
+.notification-item__user {
+  font-weight: 600;
+  color: var(--text-primary);
+  text-decoration: none;
+}
+
+.notification-item__user:hover {
+  text-decoration: underline;
+}
+
+.notification-item__time {
+  color: var(--text-muted);
+  font-weight: 400;
+}
+
+.notification-item__follow-btn {
+  margin-top: 0.5rem;
+  padding: 0.35rem 0.85rem;
+  border: none;
+  border-radius: var(--radius-sm);
+  background: var(--accent-blue);
+  color: #fff;
+  font-size: 0.8rem;
+  font-weight: 600;
+  cursor: pointer;
+}
+
+.notification-item__follow-btn--active {
+  background: var(--bg-elevated);
+  color: var(--text-primary);
+  border: 1px solid var(--border);
+}
+
+.notification-item__thumb-link {
+  flex-shrink: 0;
+  line-height: 0;
+}
+
+.notification-item__thumb {
+  width: 44px;
+  height: 44px;
+  object-fit: cover;
+  border-radius: 4px;
+}
+
+.notifications-page__empty {
+  padding: 3rem 1rem;
+  text-align: center;
+  color: var(--text-secondary);
+  font-size: 0.9rem;
+}
+
+.notifications-page__sentinel {
+  padding: 24px;
+  text-align: center;
+  font-size: 0.875rem;
+  color: var(--text-muted);
+}

@@ -1,0 +1,135 @@
+.suggestions-sidebar {
+  position: sticky;
+  top: 24px;
+}
+
+.suggestions-sidebar__user {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  margin-bottom: 16px;
+}
+
+.suggestions-sidebar__avatar {
+  width: 44px;
+  height: 44px;
+  border-radius: 50%;
+  object-fit: cover;
+}
+
+.suggestions-sidebar__user-meta {
+  flex: 1;
+  min-width: 0;
+  display: flex;
+  flex-direction: column;
+}
+
+.suggestions-sidebar__username {
+  font-size: 0.875rem;
+  font-weight: 600;
+  color: var(--text-primary);
+  text-decoration: none;
+}
+
+.suggestions-sidebar__fullname {
+  font-size: 0.8rem;
+  color: var(--text-muted);
+}
+
+.suggestions-sidebar__switch {
+  border: none;
+  background: transparent;
+  color: var(--accent-blue);
+  font-size: 0.75rem;
+  font-weight: 600;
+  cursor: pointer;
+}
+
+.suggestions-sidebar__header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 12px;
+  color: var(--text-muted);
+  font-size: 0.875rem;
+  font-weight: 600;
+}
+
+.suggestions-sidebar__see-all {
+  border: none;
+  background: transparent;
+  color: var(--text-primary);
+  font-size: 0.75rem;
+  font-weight: 600;
+  cursor: pointer;
+}
+
+.suggestions-sidebar__list {
+  list-style: none;
+  margin: 0 0 24px;
+  padding: 0;
+}
+
+.suggestions-sidebar__item {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
+  margin-bottom: 12px;
+}
+
+.suggestions-sidebar__profile {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  min-width: 0;
+  text-decoration: none;
+  flex: 1;
+}
+
+.suggestions-sidebar__profile .suggestions-sidebar__avatar {
+  width: 32px;
+  height: 32px;
+  flex-shrink: 0;
+}
+
+.suggestions-sidebar__profile div {
+  display: flex;
+  flex-direction: column;
+  min-width: 0;
+}
+
+.suggestions-sidebar__reason {
+  font-size: 0.75rem;
+  color: var(--text-muted);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.suggestions-sidebar__follow {
+  border: none;
+  background: transparent;
+  color: var(--accent-blue);
+  font-size: 0.75rem;
+  font-weight: 600;
+  cursor: pointer;
+  flex-shrink: 0;
+}
+
+.suggestions-sidebar__footer {
+  color: var(--text-muted);
+}
+
+.suggestions-sidebar__links {
+  font-size: 0.65rem;
+  line-height: 1.6;
+  margin: 0 0 12px;
+}
+
+.suggestions-sidebar__copy {
+  font-size: 0.65rem;
+  margin: 0;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+}

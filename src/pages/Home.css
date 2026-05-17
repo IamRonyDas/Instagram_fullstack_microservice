@@ -1,0 +1,18 @@
+.home-page {
+  padding-top: 24px;
+}
+
+.home-page__feed {
+  display: flex;
+  flex-direction: column;
+}
+
+.home-page__sentinel {
+  padding: 24px;
+  text-align: center;
+}
+
+.home-page__loading {
+  font-size: 0.875rem;
+  color: var(--text-muted);
+}

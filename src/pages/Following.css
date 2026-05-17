@@ -1,0 +1,21 @@
+.following-page {
+  min-height: 100vh;
+  background: var(--bg-primary);
+}
+
+.following-page__subtitle {
+  margin: 0;
+  padding: 0.5rem 1rem 0;
+  font-size: 0.85rem;
+  font-weight: 600;
+  color: var(--text-secondary);
+  text-transform: uppercase;
+  letter-spacing: 0.03em;
+}
+
+.following-page__empty {
+  padding: 3rem 1rem;
+  text-align: center;
+  color: var(--text-secondary);
+  font-size: 0.9rem;
+}

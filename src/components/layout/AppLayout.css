@@ -1,0 +1,41 @@
+.app-layout {
+  min-height: 100vh;
+  background: var(--bg-app);
+}
+
+.app-layout__body {
+  margin-left: var(--sidebar-width);
+  display: flex;
+  justify-content: center;
+  gap: 32px;
+  padding: 0 20px;
+  min-height: 100vh;
+}
+
+.app-layout__body--narrow {
+  justify-content: center;
+}
+
+.app-layout__main {
+  width: 100%;
+  max-width: var(--feed-width);
+  min-height: 100vh;
+}
+
+.app-layout__aside {
+  width: var(--aside-width);
+  padding-top: 24px;
+  display: none;
+}
+
+@media (min-width: 1264px) {
+  .app-layout__aside {
+    display: block;
+  }
+}
+
+@media (max-width: 1263px) {
+  .app-layout__body {
+    margin-left: 72px;
+  }
+}

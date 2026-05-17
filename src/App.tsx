@@ -1,26 +1,34 @@
-import React from 'react';
-import logo from './logo.svg';
+import { BrowserRouter, Routes, Route } from 'react-router-dom';
+import { AppDataProvider } from './context/AppDataContext';
+import Home from './pages/Home';
+import Profile from './pages/Profile';
+import EditProfile from './pages/EditProfile';
+import Search from './pages/Search';
+import AddPost from './pages/AddPost';
+import Notifications from './pages/Notifications';
+import Trending from './pages/Trending';
+import Following from './pages/Following';
 import './App.css';
 
-function App() {
+export default function App() {
   return (
-    <div className="App">
-      <header className="App-header">
-        <img src={logo} className="App-logo" alt="logo" />
-        <p>
-          Edit <code>src/App.tsx</code> and save to reload.
-        </p>
-        <a
-          className="App-link"
-          href="https://reactjs.org"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          Learn React
-        </a>
-      </header>
-    </div>
+    <AppDataProvider>
+      <BrowserRouter>
+        <div className="app-shell">
+          <Routes>
+            <Route path="/" element={<Home />} />
+            <Route path="/profile" element={<Profile />} />
+            <Route path="/profile/edit" element={<EditProfile />} />
+            <Route path="/profile/:username" element={<Profile />} />
+            <Route path="/profile/:username/following" element={<Following />} />
+            <Route path="/following" element={<Following />} />
+            <Route path="/search" element={<Search />} />
+            <Route path="/add-post" element={<AddPost />} />
+            <Route path="/notifications" element={<Notifications />} />
+            <Route path="/trending" element={<Trending />} />
+          </Routes>
+        </div>
+      </BrowserRouter>
+    </AppDataProvider>
   );
 }
-
-export default App;
