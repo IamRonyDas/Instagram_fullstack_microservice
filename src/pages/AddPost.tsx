@@ -11,34 +11,40 @@ export default function AddPost() {
   const { addPost } = useAppData();
   const galleryRef = useRef<HTMLInputElement>(null);
 
-  const [preview, setPreview] = useState<string | null>(null);
+  const [previews, setPreviews] = useState<string[]>([]);
   const [caption, setCaption] = useState('');
+  const [location, setLocation] = useState('');
   const [privacy, setPrivacy] = useState('public');
   const [showPrivacyMenu, setShowPrivacyMenu] = useState(false);
   const [showCamera, setShowCamera] = useState(false);
 
   const handleFile = (e: ChangeEvent<HTMLInputElement>) => {
-    const file = e.target.files?.[0];
-    if (!file) return;
-    const url = URL.createObjectURL(file);
-    setPreview((prev) => {
-      if (prev?.startsWith('blob:')) URL.revokeObjectURL(prev);
-      return url;
-    });
+    const files = e.target.files;
+    if (!files?.length) return;
+    const urls = Array.from(files).map((file) => URL.createObjectURL(file));
+    setPreviews((prev) => [...prev, ...urls]);
     e.target.value = '';
   };
 
   const handleCameraCapture = (url: string) => {
-    setPreview((prev) => {
-      if (prev?.startsWith('blob:')) URL.revokeObjectURL(prev);
-      return url;
-    });
+    setPreviews((prev) => [...prev, url]);
     setShowCamera(false);
   };
 
+  const removePreview = (index: number) => {
+    setPreviews((prev) => {
+      const newPreviews = [...prev];
+      const removed = newPreviews.splice(index, 1)[0];
+      if (removed.startsWith('blob:')) URL.revokeObjectURL(removed);
+      return newPreviews;
+    });
+  };
+
   const handlePost = () => {
-    if (!preview) return;
-    addPost(preview, caption);
+    if (previews.length === 0) return;
+    previews.forEach((preview) => {
+      addPost(preview, caption, location);
+    });
     navigate('/');
   };
 
@@ -54,7 +60,7 @@ export default function AddPost() {
         <PageHeader title="Create new post" backTo="/" />
 
         <div className="add-post-page__body">
-          {!preview ? (
+          {previews.length === 0 ? (
             <div className="add-post-page__picker">
               <div className="add-post-page__picker-icon">+</div>
               <p className="add-post-page__picker-label">Drag photos and videos here</p>
@@ -77,14 +83,36 @@ export default function AddPost() {
             </div>
           ) : (
             <div className="add-post-page__preview-wrap">
-              <img src={preview} alt="Preview" className="add-post-page__preview" />
-              <button
-                type="button"
-                className="add-post-page__change"
-                onClick={() => setPreview(null)}
-              >
-                Change photo
-              </button>
+              <div className="add-post-page__previews-grid">
+                {previews.map((preview, idx) => (
+                  <div key={idx} className="add-post-page__preview-item">
+                    <img src={preview} alt={`Preview ${idx + 1}`} className="add-post-page__preview" />
+                    <button
+                      type="button"
+                      className="add-post-page__remove"
+                      onClick={() => removePreview(idx)}
+                    >
+                      ✕
+                    </button>
+                  </div>
+                ))}
+              </div>
+              <div className="add-post-page__picker-actions">
+                <button
+                  type="button"
+                  className="add-post-page__change"
+                  onClick={() => galleryRef.current?.click()}
+                >
+                  Add more
+                </button>
+                <button
+                  type="button"
+                  className="add-post-page__change"
+                  onClick={() => setShowCamera(true)}
+                >
+                  Camera
+                </button>
+              </div>
             </div>
           )}
 
@@ -92,6 +120,7 @@ export default function AddPost() {
             ref={galleryRef}
             type="file"
             accept="image/*,video/*"
+            multiple
             className="add-post-page__file-input"
             onChange={handleFile}
           />
@@ -106,6 +135,18 @@ export default function AddPost() {
             value={caption}
             onChange={(e) => setCaption(e.target.value)}
             rows={3}
+          />
+
+          <label className="add-post-page__label" htmlFor="location">
+            Location
+          </label>
+          <input
+            id="location"
+            type="text"
+            className="add-post-page__location-input"
+            placeholder="Add location"
+            value={location}
+            onChange={(e) => setLocation(e.target.value)}
           />
 
           <div className="add-post-page__privacy-wrap">
@@ -138,7 +179,7 @@ export default function AddPost() {
           <button
             type="button"
             className="add-post-page__submit"
-            disabled={!preview}
+            disabled={previews.length === 0}
             onClick={handlePost}
           >
             Share

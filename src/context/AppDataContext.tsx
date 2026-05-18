@@ -50,7 +50,7 @@ interface AppDataContextValue {
   toggleLike: (postId: string) => void;
   toggleFollow: (username: string) => void;
   isFollowing: (username: string) => boolean;
-  addPost: (imageUrl: string, caption: string) => Post;
+  addPost: (imageUrl: string, caption: string, location?: string) => Post;
   deletePost: (postId: string) => void;
   updateProfile: (updates: { bio?: string; avatarUrl?: string }) => void;
   getPostsByUser: (username: string) => EnrichedPost[];
@@ -282,12 +282,13 @@ export function AppDataProvider({ children }: { children: ReactNode }) {
 
   const isFollowing = useCallback((username: string) => following.has(username), [following]);
 
-  const addPost = useCallback((imageUrl: string, caption: string) => {
+  const addPost = useCallback((imageUrl: string, caption: string, location?: string) => {
     const newPost: Post = {
-      id: `post-${Date.now()}`,
+      id: `post-${Date.now()}-${Math.random().toString(36).slice(2, 7)}`,
       authorUsername: CURRENT_USER_USERNAME,
       imageUrl,
       caption: caption.trim(),
+      location: location?.trim() || undefined,
       likesCount: 0,
       likesLast24h: 0,
       isWithin24h: true,

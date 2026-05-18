@@ -21,6 +21,7 @@ export interface Post {
   authorUsername: string;
   imageUrl: string;
   caption: string;
+  location?: string;
   likesCount: number;
   likesLast24h: number;
   isWithin24h: boolean;

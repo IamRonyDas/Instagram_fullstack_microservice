@@ -50,7 +50,7 @@ export default function Search() {
         <div className="search-page__results">
           {query ? (
             results.length > 0 ? (
-              results.map((user) => <SearchUserRow key={user.username} user={user} />)
+              results.map((user) => <SearchUserRow key={user.username} user={user} showFollow={false} />)
             ) : (
               <p className="search-page__empty">No results found for &quot;{query}&quot;</p>
             )
@@ -58,7 +58,7 @@ export default function Search() {
             <>
               <h2 className="search-page__section-title">Suggested for you</h2>
               {suggestions.map((user) => (
-                <SearchUserRow key={user.username} user={user} />
+                <SearchUserRow key={user.username} user={user} showFollow={false} />
               ))}
             </>
           )}
