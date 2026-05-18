@@ -27,6 +27,7 @@ export interface Post {
   isWithin24h: boolean;
   isLiked: boolean;
   createdAt: string;
+  timestamp?: number;
   comments: Comment[];
 }
 

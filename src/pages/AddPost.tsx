@@ -17,17 +17,20 @@ export default function AddPost() {
   const [privacy, setPrivacy] = useState('public');
   const [showPrivacyMenu, setShowPrivacyMenu] = useState(false);
   const [showCamera, setShowCamera] = useState(false);
+  const [errors, setErrors] = useState<{ media?: string; caption?: string; location?: string }>({});
 
   const handleFile = (e: ChangeEvent<HTMLInputElement>) => {
     const files = e.target.files;
     if (!files?.length) return;
     const urls = Array.from(files).map((file) => URL.createObjectURL(file));
     setPreviews((prev) => [...prev, ...urls]);
+    setErrors((prev) => ({ ...prev, media: undefined }));
     e.target.value = '';
   };
 
   const handleCameraCapture = (url: string) => {
     setPreviews((prev) => [...prev, url]);
+    setErrors((prev) => ({ ...prev, media: undefined }));
     setShowCamera(false);
   };
 
@@ -41,7 +44,17 @@ export default function AddPost() {
   };
 
   const handlePost = () => {
-    if (previews.length === 0) return;
+    const newErrors: { media?: string; caption?: string; location?: string } = {};
+    if (previews.length === 0) newErrors.media = 'Please select at least one photo or video.';
+    if (!caption.trim()) newErrors.caption = 'Caption cannot be empty.';
+    if (!location.trim()) newErrors.location = 'Location cannot be empty.';
+
+    if (Object.keys(newErrors).length > 0) {
+      setErrors(newErrors);
+      return;
+    }
+    
+    setErrors({});
     previews.forEach((preview) => {
       addPost(preview, caption, location);
     });
@@ -115,6 +128,7 @@ export default function AddPost() {
               </div>
             </div>
           )}
+          {errors.media && <p className="add-post-page__error">{errors.media}</p>}
 
           <input
             ref={galleryRef}
@@ -130,12 +144,16 @@ export default function AddPost() {
           </label>
           <textarea
             id="caption"
-            className="add-post-page__caption"
+            className={`add-post-page__caption ${errors.caption ? 'add-post-page__input-error' : ''}`}
             placeholder="Write a caption..."
             value={caption}
-            onChange={(e) => setCaption(e.target.value)}
+            onChange={(e) => {
+              setCaption(e.target.value);
+              setErrors((prev) => ({ ...prev, caption: undefined }));
+            }}
             rows={3}
           />
+          {errors.caption && <p className="add-post-page__error">{errors.caption}</p>}
 
           <label className="add-post-page__label" htmlFor="location">
             Location
@@ -143,11 +161,15 @@ export default function AddPost() {
           <input
             id="location"
             type="text"
-            className="add-post-page__location-input"
+            className={`add-post-page__location-input ${errors.location ? 'add-post-page__input-error' : ''}`}
             placeholder="Add location"
             value={location}
-            onChange={(e) => setLocation(e.target.value)}
+            onChange={(e) => {
+              setLocation(e.target.value);
+              setErrors((prev) => ({ ...prev, location: undefined }));
+            }}
           />
+          {errors.location && <p className="add-post-page__error">{errors.location}</p>}
 
           <div className="add-post-page__privacy-wrap">
             <button
@@ -179,7 +201,6 @@ export default function AddPost() {
           <button
             type="button"
             className="add-post-page__submit"
-            disabled={previews.length === 0}
             onClick={handlePost}
           >
             Share

@@ -171,6 +171,16 @@
   outline: none;
 }
 
+.add-post-page__input-error {
+  border-color: #ed4956 !important;
+}
+
+.add-post-page__error {
+  color: #ed4956;
+  font-size: 0.85rem;
+  margin: -0.5rem 0 0 0;
+}
+
 .add-post-page__privacy-wrap {
   position: relative;
 }

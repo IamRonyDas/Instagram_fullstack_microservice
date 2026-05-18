@@ -294,6 +294,7 @@ export function AppDataProvider({ children }: { children: ReactNode }) {
       isWithin24h: true,
       isLiked: false,
       createdAt: 'now',
+      timestamp: Date.now(),
       comments: [],
     };
     setPosts((prev) => [newPost, ...prev]);
