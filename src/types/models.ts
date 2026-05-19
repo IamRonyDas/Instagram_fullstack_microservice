@@ -22,6 +22,7 @@ export interface Post {
   imageUrl: string;
   caption: string;
   location?: string;
+  hashtags?: string[];
   likesCount: number;
   likesLast24h: number;
   isWithin24h: boolean;

@@ -53,7 +53,7 @@ export default function AddPost() {
       setErrors(newErrors);
       return;
     }
-    
+
     setErrors({});
     previews.forEach((preview) => {
       addPost(preview, caption, location);
@@ -76,7 +76,7 @@ export default function AddPost() {
           {previews.length === 0 ? (
             <div className="add-post-page__picker">
               <div className="add-post-page__picker-icon">+</div>
-              <p className="add-post-page__picker-label">Drag photos and videos here</p>
+              <p className="add-post-page__picker-label mb-3">Drag photos and videos here</p>
               <div className="add-post-page__picker-actions">
                 <button
                   type="button"
