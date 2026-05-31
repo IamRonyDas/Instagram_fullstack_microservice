@@ -8,6 +8,8 @@ import AddPost from './pages/AddPost';
 import Notifications from './pages/Notifications';
 import Trending from './pages/Trending';
 import Following from './pages/Following';
+import Login from './pages/Login';
+import Register from './pages/Register';
 import './App.css';
 
 export default function App() {
@@ -16,6 +18,8 @@ export default function App() {
       <BrowserRouter>
         <div className="app-shell">
           <Routes>
+            <Route path="/login" element={<Login />} />
+            <Route path="/register" element={<Register />} />
             <Route path="/" element={<Home />} />
             <Route path="/profile" element={<Profile />} />
             <Route path="/profile/edit" element={<EditProfile />} />
