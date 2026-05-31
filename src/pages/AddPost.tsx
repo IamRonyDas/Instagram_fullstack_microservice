@@ -11,6 +11,7 @@ export default function AddPost() {
   const { addPost } = useAppData();
   const galleryRef = useRef<HTMLInputElement>(null);
 
+  const [files, setFiles] = useState<File[]>([]);
   const [previews, setPreviews] = useState<string[]>([]);
   const [caption, setCaption] = useState('');
   const [location, setLocation] = useState('');
@@ -20,9 +21,10 @@ export default function AddPost() {
   const [errors, setErrors] = useState<{ media?: string; caption?: string; location?: string }>({});
 
   const handleFile = (e: ChangeEvent<HTMLInputElement>) => {
-    const files = e.target.files;
-    if (!files?.length) return;
-    const urls = Array.from(files).map((file) => URL.createObjectURL(file));
+    const selectedFiles = e.target.files;
+    if (!selectedFiles?.length) return;
+    const urls = Array.from(selectedFiles).map((file) => URL.createObjectURL(file));
+    setFiles((prev) => [...prev, ...Array.from(selectedFiles)]);
     setPreviews((prev) => [...prev, ...urls]);
     setErrors((prev) => ({ ...prev, media: undefined }));
     e.target.value = '';
@@ -41,9 +43,14 @@ export default function AddPost() {
       if (removed.startsWith('blob:')) URL.revokeObjectURL(removed);
       return newPreviews;
     });
+    setFiles((prev) => {
+      const newFiles = [...prev];
+      newFiles.splice(index, 1);
+      return newFiles;
+    });
   };
 
-  const handlePost = () => {
+  const handlePost = async () => {
     const newErrors: { media?: string; caption?: string; location?: string } = {};
     if (previews.length === 0) newErrors.media = 'Please select at least one photo or video.';
     if (!caption.trim()) newErrors.caption = 'Caption cannot be empty.';
@@ -55,6 +62,32 @@ export default function AddPost() {
     }
 
     setErrors({});
+    
+    // We only support uploading the first file to the backend for simplicity in this demo
+    if (files.length > 0) {
+      const formData = new FormData();
+      formData.append('image', files[0]);
+      formData.append('authorUsername', localStorage.getItem('username') || 'jane_doe');
+      formData.append('caption', caption);
+      formData.append('location', location);
+      // Optional hashtags extraction logic here
+      
+      try {
+        const token = localStorage.getItem('token');
+        await fetch('http://localhost:8080/api/posts', {
+          method: 'POST',
+          headers: {
+            // Include auth header if you are using JWT validation in gateway/post service
+            ...(token ? { 'Authorization': `Bearer ${token}` } : {})
+          },
+          body: formData
+        });
+      } catch (err) {
+        console.error("Failed to upload post", err);
+      }
+    }
+
+    // Fallback/sync with context
     previews.forEach((preview) => {
       addPost(preview, caption, location);
     });

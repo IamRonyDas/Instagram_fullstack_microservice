@@ -1,4 +1,4 @@
-import { FormEvent, useState } from 'react';
+import { FormEvent, useEffect, useState } from 'react';
 import { Link } from 'react-router-dom';
 import { useAppData } from '../../context/AppDataContext';
 import type { EnrichedPost } from '../../types/models';
@@ -9,20 +9,52 @@ interface CommentsModalProps {
   onClose: () => void;
 }
 
+interface BackendComment {
+  id: string;
+  username: string;
+  text: string;
+  createdAt: string;
+}
+
 export default function CommentsModal({ post, onClose }: CommentsModalProps) {
-  const { addComment, currentUsername, getUser } = useAppData();
+  const { currentUsername, getUser } = useAppData();
   const [text, setText] = useState('');
+  const [backendComments, setBackendComments] = useState<BackendComment[]>([]);
+
+  useEffect(() => {
+    if (!post) return;
+    // Fetch real comments from backend
+    fetch(`http://localhost:8080/api/posts/${post.id}/comments`)
+      .then(r => r.ok ? r.json() : [])
+      .then(setBackendComments)
+      .catch(() => {});
+  }, [post]);
 
   if (!post) return null;
 
-  const handleSubmit = (e: FormEvent) => {
+  const handleSubmit = async (e: FormEvent) => {
     e.preventDefault();
     if (!text.trim()) return;
-    addComment(post.id, text);
-    setText('');
+
+    const username = localStorage.getItem('username') || currentUsername;
+    try {
+      const res = await fetch(`http://localhost:8080/api/posts/${post.id}/comments`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ username, text }),
+      });
+      if (res.ok) {
+        const newComment: BackendComment = await res.json();
+        setBackendComments(prev => [...prev, newComment]);
+        setText('');
+      }
+    } catch (e) {
+      console.error('Failed to post comment', e);
+    }
   };
 
   const currentUser = getUser(currentUsername);
+  const allComments = backendComments;
 
   return (
     <div className="comments-modal__backdrop" onClick={onClose} role="presentation">
@@ -48,16 +80,16 @@ export default function CommentsModal({ post, onClose }: CommentsModalProps) {
         </div>
 
         <div className="comments-modal__list">
-          {post.comments.length === 0 ? (
+          {allComments.length === 0 ? (
             <p className="comments-modal__empty">No comments yet. Start the conversation.</p>
           ) : (
-            post.comments.map((comment) => {
+            allComments.map((comment) => {
               const author = getUser(comment.username);
               return (
                 <div key={comment.id} className="comments-modal__comment">
                   <Link to={`/profile/${comment.username}`}>
                     <img
-                      src={author?.avatarUrl || 'https://i.pravatar.cc/150?img=1'}
+                      src={author?.avatarUrl || `https://picsum.photos/seed/${comment.username}/150/150`}
                       alt={comment.username}
                       className="comments-modal__comment-avatar"
                     />
@@ -69,7 +101,9 @@ export default function CommentsModal({ post, onClose }: CommentsModalProps) {
                       </Link>{' '}
                       {comment.text}
                     </p>
-                    <span className="comments-modal__comment-time">{comment.createdAt}</span>
+                    <span className="comments-modal__comment-time">
+                      {comment.createdAt ? new Date(comment.createdAt).toLocaleString() : ''}
+                    </span>
                   </div>
                 </div>
               );

@@ -13,10 +13,12 @@ interface PostCardProps {
 }
 
 export default function PostCard({ post, onCommentClick }: PostCardProps) {
-  const { toggleLike, deletePost, currentUsername, getUser } = useAppData();
+  const { deletePost, currentUsername, getUser } = useAppData();
   const [menuOpen, setMenuOpen] = useState(false);
   const [showDeleteConfirm, setShowDeleteConfirm] = useState(false);
   const [saved, setSaved] = useState(false);
+  const [isLiked, setIsLiked] = useState(post.isLiked);
+  const [likesCount, setLikesCount] = useState(post.likesCount);
 
   const isOwn = post.author.username === currentUsername;
   const user = post.author;
@@ -27,6 +29,19 @@ export default function PostCard({ post, onCommentClick }: PostCardProps) {
     deletePost(post.id);
     setShowDeleteConfirm(false);
     setMenuOpen(false);
+  };
+
+  const handleToggleLike = async () => {
+    const currentUser = localStorage.getItem('username');
+    if (!currentUser) return;
+    try {
+      const method = isLiked ? 'DELETE' : 'POST';
+      await fetch(`http://localhost:8080/api/posts/${post.id}/like/${currentUser}`, { method });
+      setIsLiked(!isLiked);
+      setLikesCount(prev => isLiked ? prev - 1 : prev + 1);
+    } catch (e) {
+      console.error('Failed to toggle like', e);
+    }
   };
 
   return (
@@ -91,12 +106,12 @@ export default function PostCard({ post, onCommentClick }: PostCardProps) {
         <div className="post-card__actions-left">
           <button
             type="button"
-            className={`post-card__icon-btn${post.isLiked ? ' post-card__icon-btn--liked' : ''}`}
-            onClick={() => toggleLike(post.id)}
-            aria-pressed={post.isLiked}
-            aria-label={post.isLiked ? 'Unlike' : 'Like'}
+            className={`post-card__icon-btn${isLiked ? ' post-card__icon-btn--liked' : ''}`}
+            onClick={handleToggleLike}
+            aria-pressed={isLiked}
+            aria-label={isLiked ? 'Unlike' : 'Like'}
           >
-            <Heart size={24} fill={post.isLiked ? 'currentColor' : 'none'} />
+            <Heart size={24} fill={isLiked ? 'currentColor' : 'none'} />
           </button>
           <button
             type="button"
@@ -120,7 +135,7 @@ export default function PostCard({ post, onCommentClick }: PostCardProps) {
         </button>
       </div>
 
-      <p className="post-card__likes">{formatCount(post.likesCount)} likes</p>
+      <p className="post-card__likes">{formatCount(likesCount)} likes</p>
 
       {post.caption && (
         <p className="post-card__caption">
