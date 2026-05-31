@@ -4,47 +4,31 @@ import com.instagram.post.dto.CommentRequest;
 import com.instagram.post.dto.PostResponse;
 import com.instagram.post.entity.Comment;
 import com.instagram.post.entity.Post;
-import com.instagram.post.entity.PostLike;
-import com.instagram.post.repository.CommentRepository;
-import com.instagram.post.repository.PostLikeRepository;
-import com.instagram.post.repository.PostRepository;
+import com.instagram.post.service.PostService;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
-import org.springframework.web.client.RestTemplate;
 import org.springframework.web.multipart.MultipartFile;
 
 import java.io.IOException;
-import java.util.*;
-import java.util.stream.Collectors;
+import java.util.List;
+import java.util.Map;
+import java.util.Optional;
 
 @RestController
 @RequestMapping("/api/posts")
 @CrossOrigin(origins = "*")
 public class PostController {
 
-    private final PostRepository postRepository;
-    private final CommentRepository commentRepository;
-    private final PostLikeRepository postLikeRepository;
-    private final RestTemplate restTemplate;
+    private final PostService postService;
 
-    public PostController(PostRepository postRepository, CommentRepository commentRepository, PostLikeRepository postLikeRepository, RestTemplate restTemplate) {
-        this.postRepository = postRepository;
-        this.commentRepository = commentRepository;
-        this.postLikeRepository = postLikeRepository;
-        this.restTemplate = restTemplate;
+    public PostController(PostService postService) {
+        this.postService = postService;
     }
 
-    private PostResponse enrichPostResponse(Post post, String requestingUsername) {
-        PostResponse response = new PostResponse(post);
-        response.setLikesCount((int) postLikeRepository.countByPostId(post.getId()));
-        if (requestingUsername != null) {
-            response.setLiked(postLikeRepository.findByPostIdAndUsername(post.getId(), requestingUsername).isPresent());
-        }
-        return response;
-    }
+    // ─── Create Post ────────────────────────────────────────────────────────────
 
     @PostMapping(consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
     public ResponseEntity<PostResponse> createPost(
@@ -62,51 +46,44 @@ public class PostController {
             post.setHashtags(hashtags);
             post.setImageBytes(image.getBytes());
 
-            Post savedPost = postRepository.save(post);
-            return ResponseEntity.status(HttpStatus.CREATED).body(enrichPostResponse(savedPost, authorUsername));
+            PostResponse saved = postService.savePost(post);
+            return ResponseEntity.status(HttpStatus.CREATED).body(saved);
         } catch (IOException e) {
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).build();
         }
     }
 
+    // ─── Get All Posts (admin / explore) ────────────────────────────────────────
+
     @GetMapping
-    public ResponseEntity<List<PostResponse>> getAllPosts(@RequestParam(required = false) String username) {
-        List<PostResponse> posts = postRepository.findAllByOrderByCreatedAtDesc()
-                .stream()
-                .map(p -> enrichPostResponse(p, username))
-                .collect(Collectors.toList());
-        return ResponseEntity.ok(posts);
+    public ResponseEntity<List<PostResponse>> getAllPosts(
+            @RequestParam(required = false) String username) {
+        return ResponseEntity.ok(postService.getAllPosts(username));
     }
+
+    // ─── Get Feed (posts from followed users) ───────────────────────────────────
 
     @GetMapping("/feed")
     public ResponseEntity<List<PostResponse>> getFeed(
             @RequestParam List<String> usernames,
             @RequestParam(required = false) String requestingUsername) {
-        // Fetch posts for a list of users (the people the user is following)
-        List<PostResponse> feed = new ArrayList<>();
-        for (String user : usernames) {
-            feed.addAll(postRepository.findByAuthorUsernameOrderByCreatedAtDesc(user)
-                    .stream()
-                    .map(p -> enrichPostResponse(p, requestingUsername))
-                    .collect(Collectors.toList()));
-        }
-        // Sort the aggregated feed by date descending
-        feed.sort((p1, p2) -> p2.getCreatedAt().compareTo(p1.getCreatedAt()));
-        return ResponseEntity.ok(feed);
+        return ResponseEntity.ok(postService.getFeed(usernames, requestingUsername));
     }
 
+    // ─── Get Posts By User ───────────────────────────────────────────────────────
+
     @GetMapping("/user/{username}")
-    public ResponseEntity<List<PostResponse>> getUserPosts(@PathVariable String username, @RequestParam(required = false) String requestingUsername) {
-        List<PostResponse> posts = postRepository.findByAuthorUsernameOrderByCreatedAtDesc(username)
-                .stream()
-                .map(p -> enrichPostResponse(p, requestingUsername))
-                .collect(Collectors.toList());
-        return ResponseEntity.ok(posts);
+    public ResponseEntity<List<PostResponse>> getUserPosts(
+            @PathVariable String username,
+            @RequestParam(required = false) String requestingUsername) {
+        return ResponseEntity.ok(postService.getPostsByUser(username, requestingUsername));
     }
+
+    // ─── Serve Image BLOB ────────────────────────────────────────────────────────
 
     @GetMapping("/{id}/image")
     public ResponseEntity<byte[]> getPostImage(@PathVariable String id) {
-        Optional<Post> postOpt = postRepository.findById(id);
+        Optional<Post> postOpt = postService.findById(id);
         if (postOpt.isPresent() && postOpt.get().getImageBytes() != null) {
             HttpHeaders headers = new HttpHeaders();
             headers.setContentType(MediaType.IMAGE_JPEG);
@@ -115,71 +92,59 @@ public class PostController {
         return ResponseEntity.notFound().build();
     }
 
-    // --- LIKES ---
+    // ─── Likes ──────────────────────────────────────────────────────────────────
 
     @PostMapping("/{postId}/like/{username}")
-    public ResponseEntity<?> likePost(@PathVariable String postId, @PathVariable String username) {
-        Optional<Post> postOpt = postRepository.findById(postId);
-        if (postOpt.isEmpty()) return ResponseEntity.notFound().build();
-        
-        Optional<PostLike> existing = postLikeRepository.findByPostIdAndUsername(postId, username);
-        if (existing.isEmpty()) {
-            PostLike like = new PostLike();
-            like.setPostId(postId);
-            like.setUsername(username);
-            postLikeRepository.save(like);
+    public ResponseEntity<?> likePost(
+            @PathVariable String postId,
+            @PathVariable String username) {
 
-            sendNotification(postOpt.get().getAuthorUsername(), username, "LIKE", postId, username + " liked your post.");
+        Optional<Post> postOpt = postService.findById(postId);
+        if (postOpt.isEmpty()) return ResponseEntity.notFound().build();
+
+        boolean liked = postService.likePost(postId, username);
+        if (liked) {
+            postService.sendNotification(
+                postOpt.get().getAuthorUsername(), username, "LIKE", postId,
+                username + " liked your post."
+            );
             return ResponseEntity.ok(Map.of("message", "Liked"));
         }
         return ResponseEntity.badRequest().body(Map.of("message", "Already liked"));
     }
 
     @DeleteMapping("/{postId}/like/{username}")
-    public ResponseEntity<?> unlikePost(@PathVariable String postId, @PathVariable String username) {
-        Optional<PostLike> existing = postLikeRepository.findByPostIdAndUsername(postId, username);
-        if (existing.isPresent()) {
-            postLikeRepository.delete(existing.get());
-            return ResponseEntity.ok(Map.of("message", "Unliked"));
-        }
+    public ResponseEntity<?> unlikePost(
+            @PathVariable String postId,
+            @PathVariable String username) {
+
+        boolean unliked = postService.unlikePost(postId, username);
+        if (unliked) return ResponseEntity.ok(Map.of("message", "Unliked"));
         return ResponseEntity.badRequest().body(Map.of("message", "Not liked"));
     }
 
-    // --- COMMENTS ---
+    // ─── Comments ───────────────────────────────────────────────────────────────
 
     @GetMapping("/{postId}/comments")
     public ResponseEntity<List<Comment>> getComments(@PathVariable String postId) {
-        return ResponseEntity.ok(commentRepository.findByPostIdOrderByCreatedAtAsc(postId));
+        return ResponseEntity.ok(postService.getComments(postId));
     }
 
     @PostMapping("/{postId}/comments")
-    public ResponseEntity<Comment> addComment(@PathVariable String postId, @RequestBody CommentRequest request) {
-        Optional<Post> postOpt = postRepository.findById(postId);
+    public ResponseEntity<Comment> addComment(
+            @PathVariable String postId,
+            @RequestBody CommentRequest request) {
+
+        Optional<Post> postOpt = postService.findById(postId);
         if (postOpt.isEmpty()) return ResponseEntity.notFound().build();
 
-        Comment comment = new Comment();
-        comment.setPostId(postId);
-        comment.setUsername(request.getUsername());
-        comment.setText(request.getText());
-        Comment saved = commentRepository.save(comment);
+        Comment saved = postService.addComment(postId, request.getUsername(), request.getText());
 
-        sendNotification(postOpt.get().getAuthorUsername(), request.getUsername(), "COMMENT", postId, request.getUsername() + " commented on your post.");
+        postService.sendNotification(
+            postOpt.get().getAuthorUsername(), request.getUsername(), "COMMENT", postId,
+            request.getUsername() + " commented on your post."
+        );
 
         return ResponseEntity.status(HttpStatus.CREATED).body(saved);
-    }
-
-    private void sendNotification(String recipient, String sender, String type, String postId, String message) {
-        try {
-            Map<String, String> request = new HashMap<>();
-            request.put("recipientUsername", recipient);
-            request.put("senderUsername", sender);
-            request.put("type", type);
-            request.put("postId", postId);
-            request.put("message", message);
-            
-            restTemplate.postForEntity("http://localhost:8084/api/notifications", request, String.class);
-        } catch (Exception e) {
-            System.err.println("Failed to send notification: " + e.getMessage());
-        }
     }
 }

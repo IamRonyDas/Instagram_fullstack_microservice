@@ -1,7 +1,9 @@
 package com.instagram.post.dto;
 
+import com.instagram.post.entity.Comment;
 import com.instagram.post.entity.Post;
 import java.time.LocalDateTime;
+import java.util.List;
 
 public class PostResponse {
     private String id;
@@ -14,7 +16,8 @@ public class PostResponse {
     private boolean isWithin24h;
     private boolean isLiked;
     private LocalDateTime createdAt;
-    private String imageUrl; // Generated URL to fetch the image
+    private String imageUrl;
+    private List<Comment> comments;
 
     public PostResponse(Post post) {
         this.id = post.getId();
@@ -27,7 +30,6 @@ public class PostResponse {
         this.isWithin24h = post.isWithin24h();
         this.isLiked = post.isLiked();
         this.createdAt = post.getCreatedAt();
-        // The Gateway routes /api/posts/** to this service
         this.imageUrl = "http://localhost:8080/api/posts/" + post.getId() + "/image";
     }
 
@@ -43,4 +45,19 @@ public class PostResponse {
     public boolean isLiked() { return isLiked; }
     public LocalDateTime getCreatedAt() { return createdAt; }
     public String getImageUrl() { return imageUrl; }
+    public List<Comment> getComments() { return comments; }
+
+    // Setters
+    public void setId(String id) { this.id = id; }
+    public void setAuthorUsername(String authorUsername) { this.authorUsername = authorUsername; }
+    public void setCaption(String caption) { this.caption = caption; }
+    public void setLocation(String location) { this.location = location; }
+    public void setHashtags(String hashtags) { this.hashtags = hashtags; }
+    public void setLikesCount(int likesCount) { this.likesCount = likesCount; }
+    public void setLikesLast24h(int likesLast24h) { this.likesLast24h = likesLast24h; }
+    public void setWithin24h(boolean within24h) { isWithin24h = within24h; }
+    public void setLiked(boolean liked) { isLiked = liked; }
+    public void setCreatedAt(LocalDateTime createdAt) { this.createdAt = createdAt; }
+    public void setImageUrl(String imageUrl) { this.imageUrl = imageUrl; }
+    public void setComments(List<Comment> comments) { this.comments = comments; }
 }

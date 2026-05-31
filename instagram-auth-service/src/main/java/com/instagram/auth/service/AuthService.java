@@ -12,7 +12,7 @@ import org.springframework.stereotype.Service;
 import java.util.Optional;
 
 @Service
-public class AuthService {
+public class AuthService implements AuthServiceInterface {
 
     private final UserRepository userRepository;
     private final JwtUtil jwtUtil;

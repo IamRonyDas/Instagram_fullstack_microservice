@@ -1,46 +1,40 @@
 package com.instagram.notification.controller;
 
 import com.instagram.notification.entity.Notification;
-import com.instagram.notification.repository.NotificationRepository;
+import com.instagram.notification.service.NotificationServiceInterface;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
-import java.util.Optional;
 
 @RestController
 @RequestMapping("/api/notifications")
 @CrossOrigin(origins = "*")
 public class NotificationController {
 
-    private final NotificationRepository notificationRepository;
+    private final NotificationServiceInterface notificationService;
 
-    public NotificationController(NotificationRepository notificationRepository) {
-        this.notificationRepository = notificationRepository;
+    public NotificationController(NotificationServiceInterface notificationService) {
+        this.notificationService = notificationService;
     }
 
     @PostMapping
     public ResponseEntity<Notification> createNotification(@RequestBody Notification notification) {
-        // Prevent sending notification to self
-        if (notification.getSenderUsername() != null && notification.getSenderUsername().equals(notification.getRecipientUsername())) {
-            return ResponseEntity.ok().build();
+        Notification saved = notificationService.createNotification(notification);
+        if (saved == null) {
+            return ResponseEntity.ok().build(); // self-notification — silently ignored
         }
-        return ResponseEntity.ok(notificationRepository.save(notification));
+        return ResponseEntity.ok(saved);
     }
 
     @GetMapping("/{username}")
     public ResponseEntity<List<Notification>> getUserNotifications(@PathVariable String username) {
-        return ResponseEntity.ok(notificationRepository.findByRecipientUsernameOrderByCreatedAtDesc(username));
+        return ResponseEntity.ok(notificationService.getUserNotifications(username));
     }
-    
+
     @PutMapping("/{id}/read")
     public ResponseEntity<?> markAsRead(@PathVariable Long id) {
-        Optional<Notification> notifOpt = notificationRepository.findById(id);
-        if (notifOpt.isPresent()) {
-            Notification notif = notifOpt.get();
-            notif.setRead(true);
-            notificationRepository.save(notif);
-        }
+        notificationService.markAsRead(id);
         return ResponseEntity.ok().build();
     }
 }

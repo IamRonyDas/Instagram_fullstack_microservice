@@ -1,0 +1,16 @@
+-------------------------------------------------------------------------------
+Test set: com.instagram.post.service.PostServiceTest
+-------------------------------------------------------------------------------
+Tests run: 17, Failures: 0, Errors: 1, Skipped: 0, Time elapsed: 2.478 s <<< FAILURE! -- in com.instagram.post.service.PostServiceTest
+com.instagram.post.service.PostServiceTest.getPostsByUser_returnsList -- Time elapsed: 2.203 s <<< ERROR!
+org.mockito.exceptions.misusing.UnnecessaryStubbingException: 
+
+Unnecessary stubbings detected.
+Clean & maintainable test code requires zero unnecessary code.
+Following stubbings are unnecessary (click to navigate to relevant line of code):
+  1. -> at com.instagram.post.service.PostServiceTest.getPostsByUser_returnsList(PostServiceTest.java:122)
+Please remove unnecessary stubbings or use 'lenient' strictness. More info: javadoc for UnnecessaryStubbingException class.
+	at org.mockito.junit.jupiter.MockitoExtension.afterEach(MockitoExtension.java:192)
+	at java.base/java.util.ArrayList.forEach(ArrayList.java:1596)
+	at java.base/java.util.ArrayList.forEach(ArrayList.java:1596)
+
