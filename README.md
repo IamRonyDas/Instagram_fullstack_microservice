@@ -1,46 +1,101 @@
-# Getting Started with Create React App
+# Instagram Clone (Full-Stack Microservices Architecture)
 
-This project was bootstrapped with [Create React App](https://github.com/facebook/create-react-app).
+A fully functional, highly scalable Instagram clone built with a **Java Spring Boot Microservices** backend and a **React + TypeScript** frontend.
 
-## Available Scripts
+## 🚀 Features
 
-In the project directory, you can run:
+- **User Authentication**: Secure registration and login using JWT (JSON Web Tokens).
+- **Social Graph**: Follow and unfollow users to curate a personalized social experience.
+- **Dynamic Feeds**: A personalized feed that aggregates posts from followed users, sorted chronologically.
+- **Post & Media Management**: Upload posts with captions, locations, and multiple media items (images and videos).
+- **Interactive Engagement**: Like posts and leave comments in real-time.
+- **Trending & Discovery**: Discover trending posts dynamically sorted and filtered by recent likes (last 24 hours), hashtags, and locations.
+- **Real-Time Notifications**: Asynchronous alerts for new followers, likes, and comments.
+- **Premium UI/UX**: Built with modern web design principles (glassmorphism, micro-animations, and smooth mobile overscroll handling).
 
-### `npm start`
+## 🏗️ Architecture
 
-Runs the app in the development mode.\
-Open [http://localhost:3000](http://localhost:3000) to view it in the browser.
+This project is broken down into distinct microservices to ensure loose coupling, high cohesion, and independent scalability:
 
-The page will reload if you make edits.\
-You will also see any lint errors in the console.
+1. **API Gateway (`instagram-gateway`)**: The single entry point for the React frontend. Routes traffic to appropriate backend services on different ports.
+2. **Auth Service (`instagram-auth-service`)**: Handles user identities, registration, and JWT issuance.
+3. **Post Service (`instagram-post-service`)**: The core engine. Manages posts, comments, likes, media references, and feed generation logic.
+4. **Follow Service (`instagram-follow-service`)**: Manages the follower/following relationships between users.
+5. **Notification Service (`instagram-notification-service`)**: An asynchronous receiver that logs and dispatches alerts when notable actions (like, comment, follow) occur.
 
-### `npm test`
+## 🛠️ Technology Stack
 
-Launches the test runner in the interactive watch mode.\
-See the section about [running tests](https://facebook.github.io/create-react-app/docs/running-tests) for more information.
+### Backend
+- **Java 21**
+- **Spring Boot 3**
+- **Spring Cloud Gateway**
+- **Spring Data JPA**
+- **JUnit 5 & Mockito** (Unit Testing)
+- **Maven** (Build Tool)
 
-### `npm run build`
+### Frontend
+- **React 18**
+- **TypeScript**
+- **Vanilla CSS** (Custom Design System, Instagram Branding)
+- **Webpack** (via Create React App)
 
-Builds the app for production to the `build` folder.\
-It correctly bundles React in production mode and optimizes the build for the best performance.
+---
 
-The build is minified and the filenames include the hashes.\
-Your app is ready to be deployed!
+## 💻 Getting Started (Local Development)
 
-See the section about [deployment](https://facebook.github.io/create-react-app/docs/deployment) for more information.
+### Prerequisites
+- **Java 21**
+- **Maven 3.8+**
+- **Node.js 18+** & **npm**
 
-### `npm run eject`
+### 1. Start the Microservices
+Each backend service needs to be started individually. Open five separate terminal tabs and run the following commands:
 
-**Note: this is a one-way operation. Once you `eject`, you can’t go back!**
+```bash
+# Terminal 1: Gateway (Runs on port 8080)
+cd instagram-gateway && mvn spring-boot:run
 
-If you aren’t satisfied with the build tool and configuration choices, you can `eject` at any time. This command will remove the single build dependency from your project.
+# Terminal 2: Auth Service (Runs on port 8081)
+cd instagram-auth-service && mvn spring-boot:run
 
-Instead, it will copy all the configuration files and the transitive dependencies (webpack, Babel, ESLint, etc) right into your project so you have full control over them. All of the commands except `eject` will still work, but they will point to the copied scripts so you can tweak them. At this point you’re on your own.
+# Terminal 3: Follow Service (Runs on port 8082)
+cd instagram-follow-service && mvn spring-boot:run
 
-You don’t have to ever use `eject`. The curated feature set is suitable for small and middle deployments, and you shouldn’t feel obligated to use this feature. However we understand that this tool wouldn’t be useful if you couldn’t customize it when you are ready for it.
+# Terminal 4: Post Service (Runs on port 8083)
+cd instagram-post-service && mvn spring-boot:run
 
-## Learn More
+# Terminal 5: Notification Service (Runs on port 8084)
+cd instagram-notification-service && mvn spring-boot:run
+```
 
-You can learn more in the [Create React App documentation](https://facebook.github.io/create-react-app/docs/getting-started).
+### 2. Start the React Frontend
+Open a new terminal tab at the root of the project:
 
-To learn React, check out the [React documentation](https://reactjs.org/).
+```bash
+# Install dependencies
+npm install
+
+# Start the development server
+npm start
+```
+Your browser will automatically open to `http://localhost:3000`.
+
+---
+
+## 🧪 Testing
+
+The backend relies heavily on `JUnit 5` and `Mockito` for testing business logic in the service layers.
+
+To run tests for a specific microservice:
+```bash
+cd instagram-<service-name>
+mvn test
+```
+
+To run frontend tests:
+```bash
+npm test
+```
+
+## 📜 License
+This project is open-source and available under the MIT License.
