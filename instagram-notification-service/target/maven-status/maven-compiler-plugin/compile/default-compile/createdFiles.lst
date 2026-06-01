@@ -1,6 +1,0 @@
-com/instagram/notification/entity/Notification.class
-com/instagram/notification/NotificationApplication.class
-com/instagram/notification/repository/NotificationRepository.class
-com/instagram/notification/controller/NotificationController.class
-com/instagram/notification/service/NotificationService.class
-com/instagram/notification/service/NotificationServiceInterface.class

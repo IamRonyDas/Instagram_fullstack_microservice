@@ -1,6 +1,0 @@
-com/instagram/follow/FollowApplication.class
-com/instagram/follow/service/FollowServiceInterface.class
-com/instagram/follow/repository/FollowRepository.class
-com/instagram/follow/controller/FollowController.class
-com/instagram/follow/entity/UserFollow.class
-com/instagram/follow/service/FollowService.class

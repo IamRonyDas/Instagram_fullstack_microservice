@@ -119,7 +119,6 @@ class PostServiceTest {
     void getPostsByUser_returnsList() {
         when(postRepository.findByAuthorUsernameOrderByCreatedAtDesc("alice")).thenReturn(List.of(samplePost()));
         when(postLikeRepository.countByPostId(any())).thenReturn(0L);
-        when(postLikeRepository.findByPostIdAndUsername(any(), any())).thenReturn(Optional.empty());
         when(commentRepository.findByPostIdOrderByCreatedAtAsc(any())).thenReturn(List.of());
 
         List<PostResponse> result = postService.getPostsByUser("alice", null);
